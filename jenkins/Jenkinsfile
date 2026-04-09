@@ -1,1 +1,29 @@
+pipeline {
+    agent any
 
+    stages {
+        stage("repo") {
+            steps {
+                git url: 'https://github.com/ossamakel5/app1-repo.git', branch: 'main'
+            }
+        }
+
+        stage("deploy") {
+            steps {
+                sh '''
+                  kubectl get namespace app1 || kubectl create namespace app1
+                  kubectl -n app1 apply -f k8s/app1.yaml
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'app1 deploy completato con successo'
+        }
+        failure {
+            echo 'Errore nel deploy App1'
+        }
+    }
+}
